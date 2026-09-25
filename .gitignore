@@ -1,0 +1,7 @@
+__pycache__/
+*.py[cod]
+*.backup
+*.save
+training.log
+.cache/
+.python_history
