@@ -5,3 +5,7 @@ __pycache__/
 training.log
 .cache/
 .python_history
+
+# GPU training checkpoints
+checkpoints/
+*.pt
