@@ -3,7 +3,22 @@ import torch
 import torch.nn as nn
 
 
+# ============================================================
+# Aurelius 102M architecture
+# ============================================================
+
+AURELIUS_VOCAB_SIZE = 16_384
+AURELIUS_D_MODEL = 512
+AURELIUS_N_HEADS = 8
+AURELIUS_N_LAYERS = 13
+AURELIUS_D_FF = 5_376
+AURELIUS_CONTEXT_LENGTH = 256
+
+AURELIUS_PARAMETER_COUNT = 102_252_288
+
+
 class GPUAttentionBlock(nn.Module):
+
     def __init__(self, d_model, n_heads, d_ff):
         super().__init__()
 
@@ -24,6 +39,7 @@ class GPUAttentionBlock(nn.Module):
         self.norm2 = nn.LayerNorm(d_model)
 
     def forward(self, x):
+
         sequence_length = x.size(1)
 
         causal_mask = torch.triu(
@@ -54,16 +70,27 @@ class GPUAttentionBlock(nn.Module):
 
 
 class GPUTransformerModel(nn.Module):
+
     def __init__(
         self,
-        vocab_size=19,
-        d_model=512,
-        n_heads=8,
-        n_layers=13,
-        d_ff=5376,
-        context_length=256
+        vocab_size=AURELIUS_VOCAB_SIZE,
+        d_model=AURELIUS_D_MODEL,
+        n_heads=AURELIUS_N_HEADS,
+        n_layers=AURELIUS_N_LAYERS,
+        d_ff=AURELIUS_D_FF,
+        context_length=AURELIUS_CONTEXT_LENGTH
     ):
         super().__init__()
+
+        if vocab_size < 1:
+            raise ValueError(
+                "vocab_size must be greater than 0."
+            )
+
+        if d_model % n_heads != 0:
+            raise ValueError(
+                "d_model must be divisible by n_heads."
+            )
 
         self.vocab_size = vocab_size
         self.d_model = d_model
@@ -102,7 +129,13 @@ class GPUTransformerModel(nn.Module):
         )
 
     def forward(self, tokens):
-        batch_size, sequence_length = tokens.shape
+
+        if tokens.ndim != 2:
+            raise ValueError(
+                "tokens must have shape [batch, sequence_length]."
+            )
+
+        _, sequence_length = tokens.shape
 
         if sequence_length > self.context_length:
             raise ValueError(
@@ -124,3 +157,25 @@ class GPUTransformerModel(nn.Module):
         logits = self.language_head(x)
 
         return logits
+
+
+def count_parameters(model):
+
+    return sum(
+        parameter.numel()
+        for parameter in model.parameters()
+    )
+
+
+def verify_aurelius_parameters(model):
+
+    actual = count_parameters(model)
+
+    if actual != AURELIUS_PARAMETER_COUNT:
+        raise RuntimeError(
+            "Aurelius parameter count mismatch: "
+            f"expected {AURELIUS_PARAMETER_COUNT:,}, "
+            f"got {actual:,}"
+        )
+
+    return True
