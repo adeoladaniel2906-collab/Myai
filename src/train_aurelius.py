@@ -5,7 +5,7 @@ from gpu_model import GPUTransformerModel, verify_aurelius_parameters
 from aurelius_dataset import AureliusTokenDataset
 
 TOKENS = "/content/drive2/MyDrive/Aurelius/data/corpus/aurelius_tokens.bin"
-TRAIN_END = 61_914_546  # train=[0,TRAIN_END), val=[TRAIN_END,end)
+TRAIN_END = int((os.path.getsize(TOKENS) // 2) * 0.95)  # train=[0,TRAIN_END), val=[TRAIN_END,end)
 
 p = argparse.ArgumentParser()
 p.add_argument("--run-dir", required=True)

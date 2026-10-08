@@ -1,0 +1,27 @@
+{
+  "run": "aurelius_v1_warmup",
+  "parameters": 102252288,
+  "tokens_total": 66039630,
+  "tokens_train": 62737648,
+  "tokens_val": 3301982,
+  "batch": 8,
+  "context": 256,
+  "optimizer": "AdamW wd 0.1, clip 1.0, fp16 AMP",
+  "lr": "3e-4 constant after 500-step linear warmup",
+  "val_history": [
+    [
+      25000,
+      3.802
+    ],
+    [
+      30000,
+      3.7319
+    ],
+    [
+      30633,
+      3.7377
+    ]
+  ],
+  "best_val": 3.7319,
+  "notes": "Runs without LR warmup plateaued at val ~7.62 (unigram entropy ~7.59). Warmup alone fixed it."
+}
